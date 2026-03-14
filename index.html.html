@@ -1,0 +1,2063 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>ตรวจสุขภาพการเงิน | Financial Health Check</title>
+<link href="https://fonts.googleapis.com/css2?family=Sarabun:wght@300;400;500;600;700&family=Playfair+Display:wght@700&display=swap" rel="stylesheet">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+<style>
+  :root {
+    --navy: #0B1F3A;
+    --navy-light: #132d52;
+    --blue: #1A5276;
+    --sky: #3498DB;
+    --sky-light: #85C1E9;
+    --cyan: #5DADE2;
+    --white: #FFFFFF;
+    --offwhite: #F4F8FC;
+    --gray: #7F8C8D;
+    --light-gray: #ECF0F1;
+    --success: #27AE60;
+    --warning: #F39C12;
+    --danger: #E74C3C;
+    --gold: #F1C40F;
+    --shadow: 0 8px 32px rgba(11,31,58,0.15);
+    --shadow-lg: 0 20px 60px rgba(11,31,58,0.2);
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    font-family: 'Sarabun', sans-serif;
+    background: var(--navy);
+    color: var(--white);
+    min-height: 100vh;
+    overflow-x: hidden;
+  }
+
+  /* ========== PAGES ========== */
+  .page { display: none; min-height: 100vh; }
+  .page.active { display: flex; flex-direction: column; }
+
+  /* ========== LANDING ========== */
+  #page-landing {
+    background: linear-gradient(135deg, #0B1F3A 0%, #1A5276 50%, #0B1F3A 100%);
+    position: relative;
+    overflow: hidden;
+  }
+
+  #page-landing::before {
+    content: '';
+    position: absolute;
+    top: -50%;
+    right: -20%;
+    width: 80vw;
+    height: 80vw;
+    background: radial-gradient(circle, rgba(52,152,219,0.15) 0%, transparent 70%);
+    pointer-events: none;
+  }
+
+  #page-landing::after {
+    content: '';
+    position: absolute;
+    bottom: -30%;
+    left: -20%;
+    width: 60vw;
+    height: 60vw;
+    background: radial-gradient(circle, rgba(93,173,226,0.1) 0%, transparent 70%);
+    pointer-events: none;
+  }
+
+  .landing-nav {
+    padding: 20px 40px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    position: relative;
+    z-index: 10;
+  }
+
+  .logo {
+    font-family: 'Playfair Display', serif;
+    font-size: 22px;
+    color: var(--sky-light);
+    letter-spacing: 1px;
+  }
+
+  .logo span { color: var(--white); }
+
+  .landing-hero {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+    padding: 60px 24px 40px;
+    position: relative;
+    z-index: 10;
+  }
+
+  .badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    background: rgba(52,152,219,0.2);
+    border: 1px solid rgba(93,173,226,0.4);
+    border-radius: 50px;
+    padding: 8px 20px;
+    font-size: 13px;
+    color: var(--sky-light);
+    margin-bottom: 32px;
+    letter-spacing: 0.5px;
+  }
+
+  .badge::before { content: '✦'; color: var(--cyan); }
+
+  .hero-title {
+    font-size: clamp(28px, 5vw, 56px);
+    font-weight: 700;
+    line-height: 1.2;
+    margin-bottom: 20px;
+    background: linear-gradient(135deg, #FFFFFF 0%, #85C1E9 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+  }
+
+  .hero-sub {
+    font-size: clamp(15px, 2vw, 18px);
+    color: rgba(255,255,255,0.7);
+    max-width: 560px;
+    line-height: 1.7;
+    margin-bottom: 48px;
+  }
+
+  .features-row {
+    display: flex;
+    gap: 16px;
+    margin-bottom: 48px;
+    flex-wrap: wrap;
+    justify-content: center;
+  }
+
+  .feature-chip {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    background: rgba(255,255,255,0.08);
+    border: 1px solid rgba(255,255,255,0.12);
+    border-radius: 12px;
+    padding: 12px 20px;
+    font-size: 14px;
+    color: rgba(255,255,255,0.85);
+    transition: all 0.3s;
+  }
+
+  .feature-chip:hover {
+    background: rgba(52,152,219,0.2);
+    border-color: rgba(93,173,226,0.4);
+    transform: translateY(-2px);
+  }
+
+  .feature-icon { font-size: 20px; }
+
+  .btn-cta {
+    background: linear-gradient(135deg, #3498DB 0%, #1A5276 100%);
+    color: white;
+    border: none;
+    padding: 18px 48px;
+    border-radius: 50px;
+    font-size: 18px;
+    font-family: 'Sarabun', sans-serif;
+    font-weight: 600;
+    cursor: pointer;
+    box-shadow: 0 8px 30px rgba(52,152,219,0.4);
+    transition: all 0.3s;
+    letter-spacing: 0.5px;
+  }
+
+  .btn-cta:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 14px 40px rgba(52,152,219,0.5);
+  }
+
+  .landing-stats {
+    display: flex;
+    gap: 40px;
+    margin-top: 60px;
+    flex-wrap: wrap;
+    justify-content: center;
+    padding-bottom: 40px;
+  }
+
+  .stat { text-align: center; }
+  .stat-num {
+    font-size: 28px;
+    font-weight: 700;
+    color: var(--sky-light);
+  }
+  .stat-label { font-size: 13px; color: rgba(255,255,255,0.5); margin-top: 4px; }
+
+  /* ========== QUIZ CONTAINER ========== */
+  #page-quiz {
+    background: var(--offwhite);
+    min-height: 100vh;
+  }
+
+  .quiz-header {
+    background: var(--navy);
+    padding: 20px 24px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+  }
+
+  .quiz-logo { color: var(--sky-light); font-weight: 700; font-size: 16px; }
+
+  .step-indicator {
+    font-size: 13px;
+    color: rgba(255,255,255,0.6);
+    background: rgba(255,255,255,0.1);
+    padding: 6px 14px;
+    border-radius: 20px;
+  }
+
+  .progress-bar-wrap {
+    background: var(--navy-light);
+    height: 4px;
+    position: relative;
+    overflow: hidden;
+  }
+
+  .progress-bar-fill {
+    height: 100%;
+    background: linear-gradient(90deg, var(--sky), var(--cyan));
+    transition: width 0.5s cubic-bezier(0.4,0,0.2,1);
+    width: 0%;
+  }
+
+  .quiz-body {
+    flex: 1;
+    padding: 32px 24px 120px;
+    max-width: 640px;
+    margin: 0 auto;
+    width: 100%;
+  }
+
+  .section-label {
+    display: inline-block;
+    background: linear-gradient(135deg, var(--navy), var(--blue));
+    color: white;
+    font-size: 11px;
+    font-weight: 600;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    padding: 6px 14px;
+    border-radius: 20px;
+    margin-bottom: 20px;
+  }
+
+  .question-group { animation: slideIn 0.4s ease; }
+
+  @keyframes slideIn {
+    from { opacity: 0; transform: translateX(30px); }
+    to { opacity: 1; transform: translateX(0); }
+  }
+
+  .question { margin-bottom: 28px; }
+
+  .q-label {
+    font-size: 15px;
+    font-weight: 600;
+    color: var(--navy);
+    margin-bottom: 10px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+
+  .q-num {
+    background: var(--navy);
+    color: white;
+    width: 24px; height: 24px;
+    border-radius: 50%;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 11px;
+    font-weight: 700;
+    flex-shrink: 0;
+  }
+
+  .q-input {
+    width: 100%;
+    padding: 14px 16px;
+    border: 2px solid var(--light-gray);
+    border-radius: 12px;
+    font-size: 15px;
+    font-family: 'Sarabun', sans-serif;
+    color: var(--navy);
+    background: white;
+    transition: border-color 0.2s;
+    outline: none;
+  }
+
+  .q-input:focus { border-color: var(--sky); }
+
+  .q-input-group { display: flex; gap: 8px; }
+
+  .q-input-group .q-input { flex: 1; }
+  .q-input-unit {
+    padding: 14px 12px;
+    background: var(--light-gray);
+    border-radius: 12px;
+    font-size: 14px;
+    color: var(--gray);
+    white-space: nowrap;
+    display: flex;
+    align-items: center;
+  }
+
+  .options-grid { display: grid; gap: 10px; }
+  .options-grid.cols-2 { grid-template-columns: 1fr 1fr; }
+
+  .option-btn {
+    padding: 14px 16px;
+    border: 2px solid var(--light-gray);
+    border-radius: 12px;
+    background: white;
+    font-size: 14px;
+    font-family: 'Sarabun', sans-serif;
+    color: var(--navy);
+    cursor: pointer;
+    text-align: left;
+    transition: all 0.2s;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+
+  .option-btn:hover { border-color: var(--sky); background: rgba(52,152,219,0.05); }
+
+  .option-btn.selected {
+    border-color: var(--navy);
+    background: var(--navy);
+    color: white;
+  }
+
+  .option-icon { font-size: 18px; flex-shrink: 0; }
+
+  /* Nav buttons */
+  .quiz-nav {
+    position: fixed;
+    bottom: 0; left: 0; right: 0;
+    background: white;
+    padding: 16px 24px;
+    display: flex;
+    gap: 12px;
+    box-shadow: 0 -4px 20px rgba(0,0,0,0.1);
+    z-index: 100;
+  }
+
+  .btn-back {
+    flex: 0;
+    padding: 14px 24px;
+    border: 2px solid var(--light-gray);
+    border-radius: 12px;
+    background: white;
+    color: var(--gray);
+    font-size: 15px;
+    font-family: 'Sarabun', sans-serif;
+    cursor: pointer;
+    transition: all 0.2s;
+    white-space: nowrap;
+  }
+
+  .btn-back:hover { border-color: var(--navy); color: var(--navy); }
+
+  .btn-next {
+    flex: 1;
+    padding: 14px;
+    background: linear-gradient(135deg, var(--navy), var(--blue));
+    color: white;
+    border: none;
+    border-radius: 12px;
+    font-size: 16px;
+    font-family: 'Sarabun', sans-serif;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.2s;
+  }
+
+  .btn-next:hover { opacity: 0.9; transform: translateY(-1px); }
+
+  /* ========== RESULT PAGE ========== */
+  #page-result {
+    background: linear-gradient(180deg, var(--navy) 0%, #0d2b4a 100%);
+    padding: 0;
+  }
+
+  .result-header {
+    background: var(--navy);
+    padding: 20px 24px;
+    text-align: center;
+    border-bottom: 1px solid rgba(255,255,255,0.1);
+  }
+
+  .result-header h2 { font-size: 18px; color: var(--sky-light); }
+
+  .result-body {
+    padding: 32px 24px 40px;
+    max-width: 680px;
+    margin: 0 auto;
+    width: 100%;
+  }
+
+  .score-card {
+    background: linear-gradient(135deg, #1A5276, #2980B9);
+    border-radius: 24px;
+    padding: 36px 24px;
+    text-align: center;
+    margin-bottom: 28px;
+    position: relative;
+    overflow: hidden;
+    box-shadow: var(--shadow-lg);
+  }
+
+  .score-card::before {
+    content: '';
+    position: absolute;
+    top: -40px; right: -40px;
+    width: 160px; height: 160px;
+    background: rgba(255,255,255,0.05);
+    border-radius: 50%;
+  }
+
+  .score-label { font-size: 14px; color: rgba(255,255,255,0.7); margin-bottom: 8px; }
+
+  .score-ring {
+    width: 140px;
+    height: 140px;
+    margin: 0 auto 16px;
+    position: relative;
+  }
+
+  .score-ring svg { transform: rotate(-90deg); }
+
+  .score-ring-text {
+    position: absolute;
+    top: 50%; left: 50%;
+    transform: translate(-50%, -50%);
+    text-align: center;
+  }
+
+  .score-number {
+    font-size: 42px;
+    font-weight: 700;
+    line-height: 1;
+    color: white;
+  }
+
+  .score-max { font-size: 16px; color: rgba(255,255,255,0.6); }
+
+  .score-status {
+    font-size: 18px;
+    font-weight: 600;
+    color: var(--gold);
+    margin-top: 8px;
+  }
+
+  .result-cards { display: grid; gap: 16px; margin-bottom: 24px; }
+
+  .result-card {
+    background: rgba(255,255,255,0.06);
+    border: 1px solid rgba(255,255,255,0.12);
+    border-radius: 16px;
+    padding: 20px;
+  }
+
+  .result-card-title {
+    font-size: 13px;
+    font-weight: 600;
+    letter-spacing: 1.5px;
+    text-transform: uppercase;
+    margin-bottom: 14px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+
+  .result-card-title.green { color: #2ECC71; }
+  .result-card-title.red { color: #E74C3C; }
+  .result-card-title.blue { color: var(--sky-light); }
+
+  .result-item {
+    display: flex;
+    align-items: flex-start;
+    gap: 10px;
+    margin-bottom: 10px;
+    font-size: 14px;
+    color: rgba(255,255,255,0.85);
+  }
+
+  .result-item-icon { flex-shrink: 0; margin-top: 1px; }
+
+  .data-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 12px;
+    margin-bottom: 24px;
+  }
+
+  .data-tile {
+    background: rgba(255,255,255,0.06);
+    border: 1px solid rgba(255,255,255,0.1);
+    border-radius: 14px;
+    padding: 16px;
+  }
+
+  .data-tile-label { font-size: 12px; color: rgba(255,255,255,0.5); margin-bottom: 6px; }
+  .data-tile-value { font-size: 18px; font-weight: 700; color: white; }
+  .data-tile-sub { font-size: 11px; color: rgba(255,255,255,0.4); margin-top: 2px; }
+
+  .gap-bar {
+    background: rgba(255,255,255,0.1);
+    border-radius: 8px;
+    height: 10px;
+    margin: 10px 0 4px;
+    overflow: hidden;
+  }
+  .gap-bar-fill {
+    height: 100%;
+    border-radius: 8px;
+    background: linear-gradient(90deg, #E74C3C, #F39C12);
+  }
+
+  /* ========== LEAD PAGE ========== */
+  #page-lead {
+    background: linear-gradient(180deg, #0d2b4a 0%, var(--navy) 100%);
+  }
+
+  .lead-body {
+    padding: 40px 24px;
+    max-width: 480px;
+    margin: 0 auto;
+    width: 100%;
+  }
+
+  .lead-card {
+    background: white;
+    border-radius: 24px;
+    padding: 36px 28px;
+    color: var(--navy);
+    box-shadow: var(--shadow-lg);
+  }
+
+  .lead-icon { font-size: 48px; margin-bottom: 16px; text-align: center; }
+
+  .lead-title {
+    font-size: 22px;
+    font-weight: 700;
+    color: var(--navy);
+    text-align: center;
+    margin-bottom: 8px;
+    line-height: 1.3;
+  }
+
+  .lead-sub {
+    font-size: 14px;
+    color: var(--gray);
+    text-align: center;
+    margin-bottom: 28px;
+    line-height: 1.6;
+  }
+
+  .form-field { margin-bottom: 18px; }
+
+  .form-label {
+    display: block;
+    font-size: 13px;
+    font-weight: 600;
+    color: var(--navy);
+    margin-bottom: 8px;
+  }
+
+  .form-input {
+    width: 100%;
+    padding: 14px 16px;
+    border: 2px solid var(--light-gray);
+    border-radius: 12px;
+    font-size: 15px;
+    font-family: 'Sarabun', sans-serif;
+    color: var(--navy);
+    outline: none;
+    transition: border-color 0.2s;
+  }
+
+  .form-input:focus { border-color: var(--sky); }
+
+  .btn-lead {
+    width: 100%;
+    padding: 16px;
+    background: linear-gradient(135deg, var(--navy), var(--blue));
+    color: white;
+    border: none;
+    border-radius: 12px;
+    font-size: 17px;
+    font-family: 'Sarabun', sans-serif;
+    font-weight: 700;
+    cursor: pointer;
+    margin-top: 8px;
+    transition: all 0.3s;
+  }
+
+  .btn-lead:hover { opacity: 0.9; transform: translateY(-2px); box-shadow: var(--shadow); }
+
+  .privacy-note {
+    font-size: 12px;
+    color: var(--gray);
+    text-align: center;
+    margin-top: 16px;
+  }
+
+  .skip-link {
+    display: block;
+    text-align: center;
+    color: rgba(255,255,255,0.4);
+    font-size: 13px;
+    margin-top: 24px;
+    cursor: pointer;
+    text-decoration: underline;
+  }
+
+  /* ========== THANK YOU ========== */
+  #page-thankyou {
+    background: linear-gradient(135deg, var(--navy), var(--blue));
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+    padding: 40px 24px;
+  }
+
+  .ty-icon { font-size: 72px; margin-bottom: 24px; }
+  .ty-title { font-size: 28px; font-weight: 700; margin-bottom: 12px; color: white; }
+  .ty-sub { font-size: 16px; color: rgba(255,255,255,0.7); margin-bottom: 40px; max-width: 400px; line-height: 1.6; }
+
+  .btn-pdf {
+    background: white;
+    color: var(--navy);
+    border: none;
+    padding: 16px 36px;
+    border-radius: 50px;
+    font-size: 16px;
+    font-family: 'Sarabun', sans-serif;
+    font-weight: 700;
+    cursor: pointer;
+    display: inline-flex;
+    align-items: center;
+    gap: 10px;
+    box-shadow: 0 8px 24px rgba(0,0,0,0.2);
+    transition: all 0.3s;
+    margin-bottom: 16px;
+  }
+
+  .btn-pdf:hover { transform: translateY(-2px); box-shadow: 0 14px 32px rgba(0,0,0,0.3); }
+
+  /* ========== ADMIN ========== */
+  #page-admin {
+    background: var(--offwhite);
+    min-height: 100vh;
+  }
+
+  .admin-header {
+    background: var(--navy);
+    padding: 16px 24px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+  }
+
+  .admin-header h1 { color: white; font-size: 18px; }
+
+  .admin-body {
+    padding: 24px;
+    max-width: 1100px;
+    margin: 0 auto;
+  }
+
+  .admin-stats {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+    gap: 16px;
+    margin-bottom: 28px;
+  }
+
+  .admin-stat {
+    background: white;
+    border-radius: 14px;
+    padding: 20px;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.06);
+    border-left: 4px solid var(--sky);
+  }
+
+  .admin-stat-num { font-size: 28px; font-weight: 700; color: var(--navy); }
+  .admin-stat-label { font-size: 13px; color: var(--gray); margin-top: 4px; }
+
+  .admin-table-wrap {
+    background: white;
+    border-radius: 16px;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.06);
+    overflow: hidden;
+  }
+
+  .admin-table-header {
+    padding: 20px 24px 16px;
+    border-bottom: 1px solid var(--light-gray);
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+  }
+
+  .admin-table-header h3 { font-size: 16px; color: var(--navy); }
+
+  .admin-search {
+    padding: 8px 14px;
+    border: 1px solid var(--light-gray);
+    border-radius: 8px;
+    font-size: 13px;
+    font-family: 'Sarabun', sans-serif;
+    outline: none;
+    width: 200px;
+  }
+
+  table { width: 100%; border-collapse: collapse; }
+
+  th {
+    background: var(--offwhite);
+    padding: 12px 16px;
+    text-align: left;
+    font-size: 12px;
+    font-weight: 600;
+    color: var(--gray);
+    letter-spacing: 0.5px;
+    text-transform: uppercase;
+    border-bottom: 1px solid var(--light-gray);
+    white-space: nowrap;
+  }
+
+  td {
+    padding: 14px 16px;
+    font-size: 14px;
+    color: var(--navy);
+    border-bottom: 1px solid #F5F5F5;
+    vertical-align: middle;
+  }
+
+  tr:last-child td { border-bottom: none; }
+  tr:hover td { background: var(--offwhite); }
+
+  .score-badge {
+    display: inline-block;
+    padding: 4px 10px;
+    border-radius: 20px;
+    font-size: 12px;
+    font-weight: 700;
+  }
+
+  .score-excellent { background: #D5F5E3; color: #1E8449; }
+  .score-good { background: #D6EAF8; color: #1A5276; }
+  .score-fair { background: #FDEBD0; color: #784212; }
+  .score-poor { background: #FADBD8; color: #922B21; }
+
+  .admin-actions { display: flex; gap: 8px; }
+
+  .btn-view-detail {
+    padding: 6px 12px;
+    background: var(--navy);
+    color: white;
+    border: none;
+    border-radius: 6px;
+    font-size: 12px;
+    font-family: 'Sarabun', sans-serif;
+    cursor: pointer;
+  }
+
+  /* Modal */
+  .modal-overlay {
+    position: fixed;
+    inset: 0;
+    background: rgba(0,0,0,0.6);
+    z-index: 9999;
+    display: none;
+    align-items: center;
+    justify-content: center;
+    padding: 20px;
+  }
+
+  .modal-overlay.open { display: flex; }
+
+  .modal {
+    background: white;
+    border-radius: 20px;
+    padding: 28px;
+    max-width: 560px;
+    width: 100%;
+    max-height: 80vh;
+    overflow-y: auto;
+    box-shadow: 0 30px 80px rgba(0,0,0,0.3);
+  }
+
+  .modal h3 { font-size: 18px; color: var(--navy); margin-bottom: 16px; }
+
+  .modal-row {
+    display: flex;
+    justify-content: space-between;
+    padding: 10px 0;
+    border-bottom: 1px solid #F5F5F5;
+    font-size: 14px;
+  }
+
+  .modal-row:last-child { border-bottom: none; }
+  .modal-key { color: var(--gray); }
+  .modal-val { font-weight: 600; color: var(--navy); }
+
+  .modal-close {
+    width: 100%;
+    margin-top: 16px;
+    padding: 12px;
+    background: var(--navy);
+    color: white;
+    border: none;
+    border-radius: 10px;
+    font-size: 15px;
+    font-family: 'Sarabun', sans-serif;
+    cursor: pointer;
+  }
+
+  /* Responsive */
+  @media (max-width: 480px) {
+    .landing-nav { padding: 16px 20px; }
+    .options-grid.cols-2 { grid-template-columns: 1fr; }
+    .data-grid { grid-template-columns: 1fr; }
+    .admin-body { padding: 16px; }
+    table { font-size: 13px; }
+    th, td { padding: 10px 12px; }
+    .hero-title { font-size: 26px; }
+    .features-row { gap: 10px; }
+    .feature-chip { padding: 10px 14px; font-size: 13px; }
+  }
+
+  /* Admin link */
+  .admin-link-wrap {
+    position: fixed;
+    bottom: 20px;
+    right: 20px;
+    z-index: 1000;
+  }
+
+  .admin-link-btn {
+    background: rgba(255,255,255,0.15);
+    border: 1px solid rgba(255,255,255,0.3);
+    color: rgba(255,255,255,0.6);
+    padding: 8px 14px;
+    border-radius: 20px;
+    font-size: 12px;
+    font-family: 'Sarabun', sans-serif;
+    cursor: pointer;
+    backdrop-filter: blur(8px);
+  }
+
+  .empty-state {
+    text-align: center;
+    padding: 48px 24px;
+    color: var(--gray);
+  }
+
+  .empty-icon { font-size: 40px; margin-bottom: 12px; }
+  .empty-msg { font-size: 15px; }
+</style>
+</head>
+<body>
+
+<!-- ========== LANDING PAGE ========== -->
+<div id="page-landing" class="page active">
+  <nav class="landing-nav">
+    <div class="logo">Financial<span>Check</span></div>
+    <div style="font-size:13px;color:rgba(255,255,255,0.5);">🇹🇭 ภาษาไทย</div>
+  </nav>
+
+  <div class="landing-hero">
+    <div class="badge">ฟรี · ใช้เวลาเพียง 2 นาที · ไม่ต้องสมัครสมาชิก</div>
+
+    <h1 class="hero-title">ตรวจสุขภาพการเงิน<br>ของคุณภายใน 2 นาที</h1>
+
+    <p class="hero-sub">รู้ทันทีว่าความคุ้มครองชีวิต สุขภาพ และโรคร้ายแรงของคุณเพียงพอหรือยัง พร้อมรับรายงานวิเคราะห์ส่วนตัว</p>
+
+    <div class="features-row">
+      <div class="feature-chip"><span class="feature-icon">💰</span>วิเคราะห์การเงิน</div>
+      <div class="feature-chip"><span class="feature-icon">❤️</span>ประเมินความเสี่ยงสุขภาพ</div>
+      <div class="feature-chip"><span class="feature-icon">🛡️</span>คำนวณความคุ้มครองชีวิต</div>
+    </div>
+
+    <button class="btn-cta" onclick="startQuiz()">เริ่มวิเคราะห์ฟรี →</button>
+
+    <div class="landing-stats">
+      <div class="stat">
+        <div class="stat-num">15,000+</div>
+        <div class="stat-label">ผู้ใช้งาน</div>
+      </div>
+      <div class="stat">
+        <div class="stat-num">2 นาที</div>
+        <div class="stat-label">เวลาเฉลี่ย</div>
+      </div>
+      <div class="stat">
+        <div class="stat-num">100%</div>
+        <div class="stat-label">ฟรี</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="admin-link-wrap">
+    <button class="admin-link-btn" onclick="showAdmin()">⚙️ Admin</button>
+  </div>
+</div>
+
+<!-- ========== QUIZ PAGE ========== -->
+<div id="page-quiz" class="page">
+  <div class="quiz-header">
+    <div class="quiz-logo">💙 FinancialCheck</div>
+    <div class="step-indicator" id="step-indicator">ขั้นตอนที่ 1 จาก 6</div>
+  </div>
+  <div class="progress-bar-wrap">
+    <div class="progress-bar-fill" id="progress-bar"></div>
+  </div>
+
+  <div class="quiz-body" id="quiz-body">
+    <!-- Dynamic content -->
+  </div>
+
+  <div class="quiz-nav">
+    <button class="btn-back" id="btn-back" onclick="prevStep()">← ย้อนกลับ</button>
+    <button class="btn-next" id="btn-next" onclick="nextStep()">ถัดไป →</button>
+  </div>
+</div>
+
+<!-- ========== RESULT PAGE ========== -->
+<div id="page-result" class="page">
+  <div class="result-header">
+    <h2>📊 ผลการวิเคราะห์สุขภาพการเงิน</h2>
+  </div>
+
+  <div class="result-body" id="result-body">
+    <!-- Dynamic -->
+  </div>
+</div>
+
+<!-- ========== LEAD PAGE ========== -->
+<div id="page-lead" class="page">
+  <div class="lead-body">
+    <div class="lead-card">
+      <div class="lead-icon">🎯</div>
+      <h2 class="lead-title">นัดปรึกษาผู้เชี่ยวชาญฟรี รับแผนประกันที่ตรงกับคุณ</h2>
+      <p class="lead-sub">ที่ปรึกษาจะโทรกลับภายใน <strong>24 ชั่วโมง</strong> พร้อมนำเสนอแบบประกันที่เหมาะกับสถานการณ์ของคุณโดยเฉพาะ ไม่มีค่าใช้จ่าย</p>
+
+      <div class="form-field">
+        <label class="form-label">ชื่อ-นามสกุล *</label>
+        <input class="form-input" type="text" id="lead-name" placeholder="ชื่อ นามสกุล">
+      </div>
+      <div class="form-field">
+        <label class="form-label">เบอร์โทรศัพท์ *</label>
+        <input class="form-input" type="tel" id="lead-phone" placeholder="08X-XXX-XXXX">
+      </div>
+      <div class="form-field">
+        <label class="form-label">LINE ID</label>
+        <input class="form-input" type="text" id="lead-line" placeholder="LINE ID ของคุณ">
+      </div>
+
+      <button class="btn-lead" onclick="submitLead()">📩 รับรายงานของฉัน</button>
+      <p class="privacy-note">🔒 ข้อมูลของคุณปลอดภัยและจะไม่ถูกเปิดเผยต่อบุคคลที่สาม</p>
+    </div>
+
+    <div class="skip-link" onclick="showThankyou(false)">ข้ามขั้นตอนนี้ →</div>
+  </div>
+</div>
+
+<!-- ========== THANK YOU ========== -->
+<div id="page-thankyou" class="page">
+  <div class="ty-icon">🎉</div>
+  <h2 class="ty-title">ขอบคุณ!</h2>
+  <p class="ty-sub" id="ty-message">ที่ปรึกษาทางการเงินจะติดต่อกลับภายใน 24 ชั่วโมง พร้อมรายงานวิเคราะห์ฉบับเต็ม</p>
+  <button class="btn-pdf" id="btn-download-pdf" onclick="handleDownloadPDF(this)">⬇️ ดาวน์โหลดรายงาน PDF</button>
+  <br>
+  <button class="btn-pdf" style="background:rgba(255,255,255,0.15);color:white;margin-top:8px;" onclick="restartApp()">🔄 เริ่มใหม่</button>
+</div>
+
+<!-- ========== ADMIN PAGE ========== -->
+<div id="page-admin" class="page">
+  <div class="admin-header">
+    <h1>📊 Admin Dashboard</h1>
+    <button style="background:rgba(255,255,255,0.15);border:none;color:white;padding:8px 14px;border-radius:8px;cursor:pointer;font-family:'Sarabun',sans-serif;" onclick="showPage('page-landing')">← กลับ</button>
+  </div>
+
+  <div class="admin-body">
+    <div class="admin-stats" id="admin-stats">
+      <!-- Dynamic -->
+    </div>
+
+    <div class="admin-table-wrap">
+      <div class="admin-table-header">
+        <h3>📋 รายชื่อลูกค้า (Leads)</h3>
+        <input class="admin-search" id="admin-search" placeholder="ค้นหา..." oninput="filterLeads()">
+      </div>
+      <div style="overflow-x:auto;">
+        <table id="admin-table">
+          <thead>
+            <tr>
+              <th>#</th>
+              <th>ชื่อ</th>
+              <th>โทร</th>
+              <th>LINE</th>
+              <th>อายุ</th>
+              <th>รายได้/เดือน</th>
+              <th>คะแนน</th>
+              <th>BMI</th>
+              <th>วันที่</th>
+              <th>รายละเอียด</th>
+            </tr>
+          </thead>
+          <tbody id="admin-tbody">
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Modal -->
+<div class="modal-overlay" id="modal-overlay" onclick="closeModal(event)">
+  <div class="modal" id="modal-content">
+  </div>
+</div>
+
+<script>
+// ============================================================
+// STATE
+// ============================================================
+let currentStep = 0;
+let answers = {};
+let results = {};
+let allLeads = JSON.parse(localStorage.getItem('ffc_leads') || '[]');
+
+const STEPS = [
+  {
+    section: 'A · ข้อมูลส่วนตัว',
+    stepLabel: 'ขั้นตอนที่ 1 จาก 6',
+    progress: 16,
+    questions: [
+      { id: 'age', type: 'number', label: 'อายุของคุณ', unit: 'ปี', placeholder: 'เช่น 32', min: 18, max: 70 },
+      { id: 'gender', type: 'options', label: 'เพศ', options: [
+        { value: 'male', label: '👨 ชาย' },
+        { value: 'female', label: '👩 หญิง' },
+      ], cols: 2 },
+      { id: 'occupation', type: 'options', label: 'อาชีพ', options: [
+        { value: 'employee', label: '💼 พนักงานบริษัท' },
+        { value: 'government', label: '🏛️ ข้าราชการ' },
+        { value: 'business', label: '🏪 ธุรกิจส่วนตัว' },
+        { value: 'freelance', label: '💻 ฟรีแลนซ์' },
+      ]},
+      { id: 'income', type: 'number', label: 'รายได้รวมต่อเดือน', unit: 'บาท', placeholder: 'เช่น 50000' },
+    ]
+  },
+  {
+    section: 'B · ภาระและความรับผิดชอบ',
+    stepLabel: 'ขั้นตอนที่ 2 จาก 6',
+    progress: 33,
+    questions: [
+      { id: 'marital_status', type: 'options', label: 'สถานภาพ', options: [
+        { value: 'single', label: '🙋 โสด' },
+        { value: 'married', label: '💑 แต่งงานแล้ว' },
+        { value: 'divorced', label: '📋 หย่าร้าง/แยกกันอยู่' },
+      ], cols: 2 },
+      { id: 'dependents', type: 'options', label: 'มีคนที่ต้องดูแลทางการเงิน (บุตร/พ่อแม่) หรือไม่?', hint: 'คนที่พึ่งพารายได้ของคุณ', options: [
+        { value: 'none', label: '🙅 ไม่มี' },
+        { value: '1', label: '1 คน' },
+        { value: '2', label: '2 คน' },
+        { value: '3plus', label: '3 คนขึ้นไป' },
+      ], cols: 2 },
+      { id: 'dependent_type', type: 'options', label: 'คนที่ต้องดูแลคือใคร? (เลือกที่ใกล้เคียงที่สุด)', options: [
+        { value: 'none', label: '🙅 ไม่มี' },
+        { value: 'children', label: '👶 บุตร' },
+        { value: 'parents', label: '👴 พ่อแม่สูงอายุ' },
+        { value: 'both', label: '👨‍👩‍👧 ทั้งบุตรและพ่อแม่' },
+      ], cols: 2 },
+      { id: 'future_plan', type: 'options', label: 'แผนชีวิตใน 3–5 ปีข้างหน้า', options: [
+        { value: 'none', label: '😌 ยังไม่มีแผนใหญ่' },
+        { value: 'house', label: '🏠 ซื้อบ้าน/คอนโด' },
+        { value: 'children', label: '👶 มีบุตร' },
+        { value: 'retire_early', label: '🌴 เกษียณก่อนกำหนด' },
+      ], cols: 2 },
+    ]
+  },
+  {
+    section: 'C · สถานะการเงิน',
+    stepLabel: 'ขั้นตอนที่ 3 จาก 6',
+    progress: 50,
+    questions: [
+      { id: 'expenses', type: 'number', label: 'ค่าใช้จ่ายรวมต่อเดือน', unit: 'บาท', placeholder: 'เช่น 30000' },
+      { id: 'savings', type: 'number', label: 'เงินออมรวมทั้งหมด', unit: 'บาท', placeholder: 'เช่น 200000' },
+      { id: 'emergency', type: 'options', label: 'กองทุนฉุกเฉิน (รองรับได้กี่เดือน)', options: [
+        { value: 'lt3', label: '⚠️ น้อยกว่า 3 เดือน' },
+        { value: '3to6', label: '✅ 3–6 เดือน' },
+        { value: 'gt6', label: '⭐ มากกว่า 6 เดือน' },
+      ]},
+      { id: 'debt', type: 'options', label: 'ภาระหนี้สินรวม', options: [
+        { value: 'none', label: '✅ ไม่มีหนี้' },
+        { value: 'lt500k', label: '💰 น้อยกว่า 500,000 บาท' },
+        { value: '500k2m', label: '💳 500,000–2,000,000 บาท' },
+        { value: 'gt2m', label: '⚠️ มากกว่า 2,000,000 บาท' },
+      ]},
+    ]
+  },
+  {
+    section: 'D · ข้อมูลสุขภาพ',
+    stepLabel: 'ขั้นตอนที่ 4 จาก 6',
+    progress: 66,
+    questions: [
+      { id: 'height', type: 'number', label: 'ส่วนสูง', unit: 'ซม.', placeholder: 'เช่น 170', min: 140, max: 220 },
+      { id: 'weight', type: 'number', label: 'น้ำหนัก', unit: 'กก.', placeholder: 'เช่น 65', min: 30, max: 200 },
+      { id: 'smoking', type: 'options', label: 'สถานะการสูบบุหรี่', options: [
+        { value: 'none', label: '🌿 ไม่สูบ' },
+        { value: 'occasional', label: '🚬 สูบบางโอกาส' },
+        { value: 'regular', label: '🚭 สูบประจำ' },
+      ], cols: 2 },
+      { id: 'exercise', type: 'options', label: 'ความถี่ในการออกกำลังกาย', options: [
+        { value: 'never', label: '🛋️ ไม่ออกเลย' },
+        { value: '1to2', label: '🚶 1–2 ครั้ง/สัปดาห์' },
+        { value: '3to5', label: '🏃 3–5 ครั้ง/สัปดาห์' },
+        { value: 'athlete', label: '🏋️ ระดับนักกีฬา' },
+      ], cols: 2 },
+      { id: 'family_history', type: 'options', label: 'ประวัติโรคร้ายแรงในครอบครัว (พ่อ แม่ พี่น้อง)', options: [
+        { value: 'none', label: '✅ ไม่มี' },
+        { value: 'cancer', label: '🎗️ มะเร็ง' },
+        { value: 'heart', label: '❤️ โรคหัวใจ/เส้นเลือด' },
+        { value: 'both', label: '⚠️ มีทั้งสองอย่าง' },
+      ], cols: 2 },
+      { id: 'chronic_disease', type: 'options', label: 'คุณมีโรคประจำตัวหรือเคยรักษาโรคร้ายแรงไหม?', options: [
+        { value: 'none', label: '✅ ไม่มี สุขภาพดี' },
+        { value: 'controlled', label: '💊 มี แต่อยู่ในการดูแลแพทย์' },
+        { value: 'serious', label: '🏥 เคยผ่าตัดหรือรักษาโรคร้ายแรง' },
+      ]},
+    ]
+  },
+  {
+    section: 'E · ความคุ้มครองที่มีอยู่',
+    stepLabel: 'ขั้นตอนที่ 5 จาก 6',
+    progress: 83,
+    questions: [
+      { id: 'company_welfare', type: 'options', label: 'สวัสดิการจากที่ทำงาน (ประกันกลุ่ม)', hint: 'ข้าราชการนับว่ามีสวัสดิการรักษาพยาบาลรัฐ', options: [
+        { value: 'none', label: '❌ ไม่มี / ไม่รู้' },
+        { value: 'basic', label: '🏥 มี แต่คุ้มครองขั้นต่ำ (OPD อย่างเดียว)' },
+        { value: 'medium', label: '✅ มี IPD+OPD วงเงินพอใช้' },
+        { value: 'good', label: '⭐ มีครอบคลุม รวมทุนประกันชีวิต' },
+      ]},
+      { id: 'has_insurance', type: 'options', label: 'ประกันส่วนตัวที่ซื้อเอง (นอกจากสวัสดิการ)', options: [
+        { value: 'none', label: '❌ ไม่มีเลย' },
+        { value: 'life', label: '🛡️ ประกันชีวิตอย่างเดียว' },
+        { value: 'health', label: '🏥 ประกันสุขภาพอย่างเดียว' },
+        { value: 'both', label: '✅ มีทั้งประกันชีวิตและสุขภาพ' },
+      ], cols: 2 },
+      { id: 'health_coverage_limit', type: 'options', label: 'วงเงินคุ้มครองสุขภาพต่อปี (รวมทุกแหล่ง)', hint: 'ประมาณการจากสวัสดิการ + ประกันส่วนตัว', options: [
+        { value: 'none', label: '❌ ไม่มีเลย' },
+        { value: 'lt200k', label: '< 200,000 บาท' },
+        { value: '200to500k', label: '200,000–500,000 บาท' },
+        { value: 'gt500k', label: '> 500,000 บาท (ห้องเดี่ยว รพ.เอกชน)' },
+      ]},
+      { id: 'coverage_amount', type: 'number', label: 'ทุนประกันชีวิตรวม (ถ้ามี ถ้าไม่มีใส่ 0)', unit: 'บาท', placeholder: 'เช่น 1000000 หรือ 0' },
+    ]
+  },
+  {
+    section: 'F · เป้าหมายและงบประมาณ',
+    stepLabel: 'ขั้นตอนที่ 6 จาก 6',
+    progress: 95,
+    questions: [
+      { id: 'main_concern', type: 'options', label: 'สิ่งที่คุณกังวลมากที่สุดตอนนี้คืออะไร?', options: [
+        { value: 'death', label: '💔 ถ้าเสียชีวิต ครอบครัวจะเป็นอย่างไร' },
+        { value: 'hospital', label: '🏥 ค่ารักษาพยาบาลแพงมาก กลัวไม่มีเงินจ่าย' },
+        { value: 'critical', label: '🎗️ กลัวป่วยโรคร้ายแรง แล้วต้องหยุดทำงาน' },
+        { value: 'retirement', label: '🌴 กลัวเงินไม่พอใช้ตอนเกษียณ' },
+      ]},
+      { id: 'risk_appetite', type: 'options', label: 'คุณต้องการประกันแบบไหน?', options: [
+        { value: 'pure_protection', label: '🛡️ คุ้มครองสูงสุด เบี้ยถูก (Term)' },
+        { value: 'saving', label: '💰 คุ้มครองพร้อมออมเงิน (Whole Life/Endowment)' },
+        { value: 'investment', label: '📈 คุ้มครองพร้อมลงทุน (Unit Linked)' },
+        { value: 'unsure', label: '🤔 ยังไม่แน่ใจ ให้ผู้เชี่ยวชาญแนะนำ' },
+      ]},
+      { id: 'monthly_budget', type: 'options', label: 'งบประมาณค่าเบี้ยประกันที่สบายใจจ่ายต่อเดือน', options: [
+        { value: 'lt1k', label: '< 1,000 บาท' },
+        { value: '1to3k', label: '1,000–3,000 บาท' },
+        { value: '3to5k', label: '3,000–5,000 บาท' },
+        { value: 'gt5k', label: '> 5,000 บาท' },
+      ], cols: 2 },
+    ]
+  }
+];
+
+// ============================================================
+// NAVIGATION
+// ============================================================
+function showPage(id) {
+  document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+  document.getElementById(id).classList.add('active');
+  window.scrollTo(0, 0);
+}
+
+function startQuiz() {
+  currentStep = 0;
+  answers = {};
+  renderStep();
+  showPage('page-quiz');
+}
+
+function renderStep() {
+  const step = STEPS[currentStep];
+  document.getElementById('step-indicator').textContent = step.stepLabel;
+  document.getElementById('progress-bar').style.width = step.progress + '%';
+  document.getElementById('btn-back').style.display = currentStep === 0 ? 'none' : 'block';
+
+  let html = `<div class="question-group">
+    <div class="section-label">${step.section}</div>`;
+
+  step.questions.forEach((q, idx) => {
+    const globalNum = STEPS.slice(0, currentStep).reduce((sum, s) => sum + s.questions.length, 0) + idx + 1;
+    html += `<div class="question">
+      <div class="q-label"><span class="q-num">${globalNum}</span>${q.label}</div>
+      ${q.hint ? `<div style="font-size:12px;color:#7F8C8D;margin:-6px 0 8px 32px;">${q.hint}</div>` : ''}`;
+
+    if (q.type === 'number') {
+      const val = answers[q.id] || '';
+      html += `<div class="q-input-group">
+        <input class="q-input" type="number" id="input-${q.id}" value="${val}" placeholder="${q.placeholder}" min="${q.min||0}" oninput="answers['${q.id}']=this.value">
+        <div class="q-input-unit">${q.unit}</div>
+      </div>`;
+    } else if (q.type === 'options') {
+      const colClass = q.cols === 2 ? 'cols-2' : '';
+      html += `<div class="options-grid ${colClass}">`;
+      q.options.forEach(opt => {
+        const sel = answers[q.id] === opt.value ? 'selected' : '';
+        html += `<button class="option-btn ${sel}" onclick="selectOption('${q.id}','${opt.value}',this)">${opt.label}</button>`;
+      });
+      html += `</div>`;
+    }
+
+    html += `</div>`;
+  });
+
+  html += `</div>`;
+  document.getElementById('quiz-body').innerHTML = html;
+  window.scrollTo(0, 0);
+}
+
+function selectOption(id, value, el) {
+  answers[id] = value;
+  const parent = el.closest('.options-grid');
+  parent.querySelectorAll('.option-btn').forEach(b => b.classList.remove('selected'));
+  el.classList.add('selected');
+}
+
+function nextStep() {
+  // Sync number inputs
+  const step = STEPS[currentStep];
+  step.questions.forEach(q => {
+    if (q.type === 'number') {
+      const el = document.getElementById('input-' + q.id);
+      if (el) answers[q.id] = el.value;
+    }
+  });
+
+  // Validate required
+  for (const q of step.questions) {
+    if (!answers[q.id] && answers[q.id] !== 0) {
+      if (q.id === 'lead-line') continue;
+      alert('กรุณากรอกข้อมูลให้ครบถ้วน: ' + q.label);
+      return;
+    }
+  }
+
+  if (currentStep < STEPS.length - 1) {
+    currentStep++;
+    renderStep();
+  } else {
+    calculateResults();
+    renderResults();
+    showPage('page-result');
+  }
+}
+
+function prevStep() {
+  if (currentStep > 0) {
+    currentStep--;
+    renderStep();
+  } else {
+    showPage('page-landing');
+  }
+}
+
+// ============================================================
+// CALCULATIONS
+// ============================================================
+function calculateResults() {
+  const income = parseFloat(answers.income) || 0;
+  const expenses = parseFloat(answers.expenses) || 0;
+  const savings = parseFloat(answers.savings) || 0;
+  const height = parseFloat(answers.height) || 170;
+  const weight = parseFloat(answers.weight) || 60;
+  const coverage = parseFloat(answers.coverage_amount) || 0;
+
+  // BMI
+  const heightM = height / 100;
+  const bmi = weight / (heightM * heightM);
+  let bmiStatus = bmi < 18.5 ? 'น้ำหนักน้อย' : bmi < 23 ? 'ปกติ' : bmi < 27.5 ? 'น้ำหนักเกิน' : 'อ้วน';
+  let bmiColor = bmi < 18.5 ? '#F39C12' : bmi < 23 ? '#27AE60' : bmi < 27.5 ? '#F39C12' : '#E74C3C';
+
+  // Recommended coverage — adjust multiplier by dependents
+  const annualIncome = income * 12;
+  let coverageMultiplier = 10;
+  if (answers.dependents === '3plus') coverageMultiplier = 15;
+  else if (answers.dependents === '2') coverageMultiplier = 12;
+  else if (answers.dependents === '1') coverageMultiplier = 10;
+  else coverageMultiplier = 7; // no dependents
+  // Add debt to recommended coverage
+  const debtAmount = answers.debt === 'gt2m' ? 2000000 : answers.debt === '500k2m' ? 1000000 : answers.debt === 'lt500k' ? 250000 : 0;
+  const recommendedCoverage = (annualIncome * coverageMultiplier) + debtAmount;
+  const protectionGap = Math.max(0, recommendedCoverage - coverage);
+  const gapPct = recommendedCoverage > 0 ? Math.min(100, (protectionGap / recommendedCoverage) * 100) : 0;
+
+  // Emergency fund
+  const recommendedEmergency = expenses * 6;
+
+  // Health coverage gap
+  const hasGoodHealthCoverage = answers.health_coverage_limit === 'gt500k';
+  const hasMediumHealthCoverage = answers.health_coverage_limit === '200to500k';
+
+  // Financial Score
+  let score = 50;
+  const savingsRatio = expenses > 0 ? savings / expenses : 0;
+  if (savingsRatio >= 6) score += 20; else if (savingsRatio >= 3) score += 12; else if (savingsRatio >= 1) score += 6; else score -= 5;
+  if (answers.emergency === 'gt6') score += 15; else if (answers.emergency === '3to6') score += 8; else score -= 5;
+  if (answers.has_insurance === 'both') score += 15; else if (answers.has_insurance !== 'none') score += 7;
+  if (answers.company_welfare === 'good') score += 8; else if (answers.company_welfare === 'medium') score += 4;
+  const coverageRatio = recommendedCoverage > 0 ? coverage / recommendedCoverage : 0;
+  if (coverageRatio >= 0.8) score += 10; else if (coverageRatio >= 0.5) score += 5;
+  if (answers.debt === 'none') score += 10; else if (answers.debt === 'lt500k') score += 5; else if (answers.debt === 'gt2m') score -= 8;
+  if (bmi >= 18.5 && bmi < 23) score += 5;
+  if (answers.smoking === 'none') score += 3; else if (answers.smoking === 'regular') score -= 6;
+  if (answers.exercise === '3to5' || answers.exercise === 'athlete') score += 4; else if (answers.exercise === 'never') score -= 3;
+  if (answers.family_history === 'both') score -= 7; else if (answers.family_history !== 'none') score -= 3;
+  if (answers.chronic_disease === 'serious') score -= 8; else if (answers.chronic_disease === 'controlled') score -= 3;
+  if (hasGoodHealthCoverage) score += 5; else if (!hasGoodHealthCoverage && answers.health_coverage_limit === 'none') score -= 5;
+
+  score = Math.max(0, Math.min(100, Math.round(score)));
+  let scoreStatus = score >= 80 ? 'ดีเยี่ยม' : score >= 60 ? 'ดี' : score >= 40 ? 'ต้องปรับปรุง' : 'ความเสี่ยงสูง';
+  let scoreColor = score >= 80 ? '#2ECC71' : score >= 60 ? '#3498DB' : score >= 40 ? '#F39C12' : '#E74C3C';
+
+  // ── PERSONALIZED INSURANCE RECOMMENDATIONS ──
+  const insRecs = [];
+
+  // 1. TERM LIFE — needed if dependents + protection gap
+  if (protectionGap > 0 && answers.dependents !== 'none') {
+    const priority = answers.dependents === '3plus' || answers.dependents === '2' ? 'urgent' : 'high';
+    let reason = '';
+    if (answers.dependent_type === 'children') reason = `คุณมีบุตรที่ต้องดูแล หากเกิดเหตุไม่คาดคิด เงิน ${fmtNum(protectionGap)} บาท จะเป็นหลักประกันให้ครอบครัว`;
+    else if (answers.dependent_type === 'parents') reason = `คุณดูแลพ่อแม่สูงอายุ ประกันชีวิตจะคุ้มครองรายได้ที่ครอบครัวพึ่งพิง`;
+    else if (answers.dependent_type === 'both') reason = `คุณดูแลทั้งบุตรและพ่อแม่ ภาระนี้ต้องการทุนประกันสูงกว่าค่าเฉลี่ย`;
+    else reason = `ทุนประกันที่มีอยู่ยังขาดอีก ${fmtNum(protectionGap)} บาท จากที่ควรมี`;
+    insRecs.push({
+      priority, type: 'term_life',
+      icon: '🛡️', name: 'ประกันชีวิตแบบ Term (ชั่วคราว)',
+      tagline: 'คุ้มครองสูงสุด เบี้ยถูกที่สุด',
+      reason,
+      budget: answers.monthly_budget,
+      tags: ['#คุ้มครองครอบครัว', '#ทุนสูง', '#เบี้ยประหยัด'],
+      color: '#E74C3C'
+    });
+  }
+
+  // 2. WHOLE LIFE / ENDOWMENT — if they want savings + protection
+  if (answers.risk_appetite === 'saving' || (answers.future_plan === 'retire_early' && answers.monthly_budget !== 'lt1k')) {
+    insRecs.push({
+      priority: 'high', type: 'whole_life',
+      icon: '💰', name: 'ประกันชีวิตแบบ Whole Life / สะสมทรัพย์',
+      tagline: 'ออมเงินควบคู่กับความคุ้มครองตลอดชีพ',
+      reason: answers.future_plan === 'retire_early'
+        ? `เหมาะกับแผนเกษียณก่อนกำหนดของคุณ เงินครบสัญญาใช้เป็นทุนเกษียณได้`
+        : `ตอบโจทย์คนที่ต้องการทั้งคุ้มครองชีวิตและเงินออมระยะยาว`,
+      tags: ['#ออมทรัพย์', '#คุ้มครองตลอดชีพ', '#เงินครบสัญญา'],
+      color: '#8E44AD'
+    });
+  }
+
+  // 3. HEALTH INSURANCE — if welfare gap or no/low health coverage
+  if (answers.health_coverage_limit === 'none' || answers.health_coverage_limit === 'lt200k') {
+    const isFreelance = answers.occupation === 'freelance' || answers.occupation === 'business';
+    insRecs.push({
+      priority: 'urgent', type: 'health',
+      icon: '🏥', name: 'ประกันสุขภาพ (Health Insurance)',
+      tagline: 'ห้องเดี่ยวโรงพยาบาลเอกชน ไม่ต้องสำรองจ่าย',
+      reason: isFreelance
+        ? `คุณไม่มีสวัสดิการจากที่ทำงาน ประกันสุขภาพส่วนตัวจึงจำเป็นมากที่สุด ค่ารักษาพยาบาลโรงพยาบาลเอกชนปัจจุบันสูงถึง 50,000–200,000 บาทต่อครั้ง`
+        : `วงเงินสุขภาพที่มีอยู่ยังต่ำกว่ามาตรฐาน ควรเสริมด้วยประกันส่วนตัว`,
+      tags: ['#ไม่ต้องสำรองจ่าย', '#โรงพยาบาลเอกชน', '#IPD+OPD'],
+      color: '#2980B9'
+    });
+  } else if (answers.health_coverage_limit === '200to500k' && answers.company_welfare !== 'good') {
+    insRecs.push({
+      priority: 'medium', type: 'health_upgrade',
+      icon: '🏥', name: 'อัปเกรดประกันสุขภาพ (Super Top-Up)',
+      tagline: 'เพิ่มวงเงินคุ้มครองให้ครอบคลุมค่ารักษาสูง',
+      reason: `วงเงินปัจจุบัน 200,000–500,000 บาทอาจไม่พอหากต้องรักษาโรคร้ายแรง เช่น มะเร็ง หรือผ่าตัดหัวใจ ที่ค่าใช้จ่ายสูงถึง 500,000–2,000,000 บาท`,
+      tags: ['#เพิ่มวงเงิน', '#Top-Up', '#โรคซับซ้อน'],
+      color: '#2980B9'
+    });
+  }
+
+  // 4. CRITICAL ILLNESS — if family history or high BMI or smoking
+  const ciRisk = answers.family_history !== 'none' || answers.smoking === 'regular' || bmi >= 27.5;
+  const ciPriority = answers.family_history === 'both' || (answers.family_history !== 'none' && answers.smoking === 'regular') ? 'urgent' : 'high';
+  let ciReason = '';
+  if (answers.family_history === 'cancer') ciReason = `ครอบครัวคุณมีประวัติมะเร็ง ความเสี่ยงทางพันธุกรรมสูงกว่าค่าเฉลี่ย 2–3 เท่า ประกัน CI ให้เงินก้อน ${fmtNum(Math.max(1000000, income * 24))} บาทเมื่อตรวจพบโรค เพื่อใช้รักษาและทดแทนรายได้`;
+  else if (answers.family_history === 'heart') ciReason = `ประวัติโรคหัวใจในครอบครัวเพิ่มความเสี่ยงโรคหลอดเลือดสูง ประกัน CI คุ้มครองทั้งโรคหัวใจและเส้นเลือดสมอง`;
+  else if (answers.family_history === 'both') ciReason = `ครอบครัวมีประวัติทั้งมะเร็งและโรคหัวใจ ความเสี่ยงสูงมาก ประกัน CI จำเป็นอย่างยิ่ง`;
+  else if (answers.smoking === 'regular') ciReason = `ผู้สูบบุหรี่มีความเสี่ยงมะเร็งปอด โรคหัวใจ และเส้นเลือดสูงกว่าคนทั่วไปมาก ยิ่งซื้อตอนยังสุขภาพดี เบี้ยยิ่งถูก`;
+  else ciReason = `BMI เกินเกณฑ์เพิ่มความเสี่ยงโรคเบาหวาน ความดัน และโรคหัวใจ การมี CI ไว้เป็นหลักประกันช่วยได้มาก`;
+
+  if (ciRisk || answers.main_concern === 'critical') {
+    insRecs.push({
+      priority: ciPriority, type: 'ci',
+      icon: '🎗️', name: 'ประกันโรคร้ายแรง (Critical Illness)',
+      tagline: 'เงินก้อนทันทีเมื่อตรวจพบโรคร้ายแรง 36+ โรค',
+      reason: ciReason || `เพื่อรับเงินก้อนทดแทนรายได้และค่ารักษาเมื่อป่วยโรคร้าย`,
+      tags: ['#เงินก้อน', '#36โรคร้ายแรง', '#ทดแทนรายได้'],
+      color: '#C0392B'
+    });
+  }
+
+  // 5. ACCIDENT (PA) — almost everyone, especially freelance/business
+  const paUrgent = answers.occupation === 'freelance' || answers.occupation === 'business';
+  insRecs.push({
+    priority: paUrgent ? 'high' : 'medium', type: 'pa',
+    icon: '⚡', name: 'ประกันอุบัติเหตุ (PA)',
+    tagline: 'เบี้ยปีละ 500–2,000 บาท คุ้มครองสูงถึง 1,000,000 บาท',
+    reason: paUrgent
+      ? `ฟรีแลนซ์/เจ้าของธุรกิจไม่มีสวัสดิการรองรับหากเกิดอุบัติเหตุ PA เป็นตัวเลือกที่คุ้มค่าที่สุดในราคาหลักร้อยบาทต่อปี`
+      : `PA เป็นประกันพื้นฐานที่ทุกคนควรมี เบี้ยถูก คุ้มครองอุบัติเหตุ 24 ชั่วโมงทั่วโลก`,
+    tags: ['#เบี้ยถูก', '#24ชม.', '#อุบัติเหตุ'],
+    color: '#E67E22'
+  });
+
+  // 6. RETIREMENT / ANNUITY — if age 35+ or concerned about retirement
+  if ((parseInt(answers.age) >= 35 || answers.main_concern === 'retirement' || answers.future_plan === 'retire_early') && answers.monthly_budget !== 'lt1k') {
+    insRecs.push({
+      priority: 'medium', type: 'annuity',
+      icon: '🌴', name: 'ประกันบำนาญ (Annuity / Retirement Plan)',
+      tagline: 'รับเงินรายเดือนหลังเกษียณ ตลอดชีพ',
+      reason: answers.future_plan === 'retire_early'
+        ? `เหมาะกับแผนเกษียณก่อนกำหนดของคุณ และยังลดหย่อนภาษีได้สูงสุด 200,000 บาทต่อปี`
+        : `อายุ ${answers.age} ปี เป็นช่วงเวลาที่เหมาะที่สุดในการเริ่มวางแผนเกษียณ ยิ่งเริ่มเร็ว เงินสะสมยิ่งมาก`,
+      tags: ['#วางแผนเกษียณ', '#ลดหย่อนภาษี', '#รับเงินตลอดชีพ'],
+      color: '#27AE60'
+    });
+  }
+
+  // 7. Unit-linked — if investment appetite
+  if (answers.risk_appetite === 'investment' && answers.monthly_budget !== 'lt1k') {
+    insRecs.push({
+      priority: 'medium', type: 'ul',
+      icon: '📈', name: 'ประกันควบการลงทุน (Unit Linked)',
+      tagline: 'คุ้มครองชีวิต + โอกาสผลตอบแทนจากตลาดทุน',
+      reason: `เหมาะสำหรับผู้ที่รับความเสี่ยงได้และต้องการผลตอบแทนสูงกว่าประกันทั่วไป ลงทุนในกองทุนรวมหลากหลาย`,
+      tags: ['#Unit-Linked', '#ผลตอบแทนสูง', '#ลงทุนได้เอง'],
+      color: '#2980B9'
+    });
+  }
+
+  // Sort by priority
+  const priorityOrder = { urgent: 0, high: 1, medium: 2 };
+  insRecs.sort((a, b) => priorityOrder[a.priority] - priorityOrder[b.priority]);
+
+  results = {
+    score, scoreStatus, scoreColor,
+    bmi: bmi.toFixed(1), bmiStatus, bmiColor,
+    annualIncome, recommendedCoverage, coverageMultiplier, coverage, protectionGap, gapPct,
+    recommendedEmergency, hasGoodHealthCoverage, hasMediumHealthCoverage,
+    income, expenses, savings, insRecs
+  };
+}
+
+function fmtNum(n) {
+  return Number(n).toLocaleString('th-TH');
+}
+
+function renderResults() {
+  const r = results;
+  const dashArr = 2 * Math.PI * 54;
+  const dashOffset = dashArr * (1 - r.score / 100);
+
+  const strengthItems = [];
+  const weakItems = [];
+
+  if (answers.emergency === 'gt6') strengthItems.push('กองทุนฉุกเฉินมากกว่า 6 เดือน ✅');
+  else if (answers.emergency === '3to6') strengthItems.push('กองทุนฉุกเฉิน 3–6 เดือน ✅');
+  else weakItems.push('กองทุนฉุกเฉินยังไม่เพียงพอ ควรมีอย่างน้อย 6 เดือน');
+
+  if (answers.debt === 'none') strengthItems.push('ไม่มีภาระหนี้สิน ✅');
+  else if (answers.debt === 'gt2m') weakItems.push('ภาระหนี้สูงมาก กระทบความมั่นคงทางการเงิน');
+
+  if (r.bmi >= 18.5 && r.bmi < 23) strengthItems.push(`BMI อยู่ในเกณฑ์ปกติ (${r.bmi}) ✅`);
+  else weakItems.push(`BMI ${r.bmi} (${r.bmiStatus}) ควรดูแลน้ำหนักเพื่อลดความเสี่ยงโรค`);
+
+  if (answers.company_welfare === 'good') strengthItems.push('สวัสดิการจากที่ทำงานครอบคลุมดี ✅');
+  else if (answers.company_welfare === 'none') weakItems.push('ไม่มีสวัสดิการจากที่ทำงาน ความเสี่ยงสูงมาก');
+
+  if (r.protectionGap === 0) strengthItems.push('ทุนประกันชีวิตเพียงพอแล้ว ✅');
+  else weakItems.push(`ทุนประกันชีวิตขาดอีก ${fmtNum(r.protectionGap)} บาท (ควรมี ${r.coverageMultiplier}× รายได้ต่อปี + หนี้สิน)`);
+
+  if (answers.health_coverage_limit === 'gt500k') strengthItems.push('วงเงินสุขภาพครอบคลุมดีกว่ามาตรฐาน ✅');
+  else if (answers.health_coverage_limit === 'none') weakItems.push('ไม่มีประกันสุขภาพเลย ความเสี่ยงสูงมาก');
+
+  if (answers.family_history !== 'none') weakItems.push(`ประวัติ${answers.family_history === 'cancer' ? 'มะเร็ง' : answers.family_history === 'heart' ? 'โรคหัวใจ' : 'มะเร็งและโรคหัวใจ'}ในครอบครัว เพิ่มความเสี่ยงทางพันธุกรรม`);
+
+  if (answers.smoking === 'none') strengthItems.push('ไม่สูบบุหรี่ ลดความเสี่ยงโรคร้ายแรง ✅');
+  else if (answers.smoking === 'regular') weakItems.push('สูบบุหรี่ประจำ เพิ่มความเสี่ยงและค่าเบี้ยประกัน');
+
+  const priorityLabel = { urgent: '🔴 เร่งด่วน', high: '🟡 สำคัญ', medium: '🔵 แนะนำ' };
+  const priorityBorder = { urgent: '#E74C3C', high: '#F39C12', medium: '#3498DB' };
+
+  let html = `
+    <div class="score-card">
+      <div class="score-label">คะแนนสุขภาพการเงินของคุณ</div>
+      <div class="score-ring">
+        <svg viewBox="0 0 120 120" width="140" height="140">
+          <circle cx="60" cy="60" r="54" fill="none" stroke="rgba(255,255,255,0.15)" stroke-width="10"/>
+          <circle cx="60" cy="60" r="54" fill="none" stroke="${r.scoreColor}" stroke-width="10"
+            stroke-dasharray="${dashArr.toFixed(1)}"
+            stroke-dashoffset="${dashOffset.toFixed(1)}"
+            stroke-linecap="round"/>
+        </svg>
+        <div class="score-ring-text">
+          <div class="score-number">${r.score}</div>
+          <div class="score-max">/100</div>
+        </div>
+      </div>
+      <div class="score-status">${r.scoreStatus}</div>
+    </div>
+
+    <div class="data-grid">
+      <div class="data-tile">
+        <div class="data-tile-label">ทุนประกันที่แนะนำ</div>
+        <div class="data-tile-value" style="font-size:14px;">${fmtNum(r.recommendedCoverage)}</div>
+        <div class="data-tile-sub">บาท (รายได้×${r.coverageMultiplier}+หนี้)</div>
+      </div>
+      <div class="data-tile">
+        <div class="data-tile-label">ทุนประกันปัจจุบัน</div>
+        <div class="data-tile-value" style="font-size:14px;color:${r.coverage < r.recommendedCoverage ? '#E74C3C' : '#2ECC71'}">${fmtNum(r.coverage)}</div>
+        <div class="data-tile-sub">บาท</div>
+      </div>
+      <div class="data-tile">
+        <div class="data-tile-label">BMI</div>
+        <div class="data-tile-value" style="color:${r.bmiColor}">${r.bmi}</div>
+        <div class="data-tile-sub">${r.bmiStatus}</div>
+      </div>
+      <div class="data-tile">
+        <div class="data-tile-label">กองทุนฉุกเฉินที่ควรมี</div>
+        <div class="data-tile-value" style="font-size:14px;">${fmtNum(r.recommendedEmergency)}</div>
+        <div class="data-tile-sub">บาท (ค่าใช้จ่าย×6)</div>
+      </div>
+    </div>
+
+    ${r.protectionGap > 0 ? `
+    <div class="result-card" style="margin-bottom:16px;border-left:4px solid #E74C3C;">
+      <div class="result-card-title red">⚠️ ช่องว่างความคุ้มครองชีวิต</div>
+      <div style="font-size:24px;font-weight:700;color:#E74C3C;margin-bottom:8px;">${fmtNum(r.protectionGap)} บาท</div>
+      <div class="gap-bar"><div class="gap-bar-fill" style="width:${r.gapPct}%"></div></div>
+      <div style="font-size:12px;color:rgba(255,255,255,0.5);margin-top:4px;">ขาดอีก ${r.gapPct.toFixed(0)}% จากที่ควรมี</div>
+    </div>` : ''}
+
+    <!-- PERSONALIZED INSURANCE PLANS -->
+    <div class="result-card" style="margin-bottom:16px;">
+      <div class="result-card-title blue" style="font-size:15px;margin-bottom:16px;">🎯 แบบประกันที่เหมาะกับคุณโดยเฉพาะ</div>
+      <div style="font-size:13px;color:rgba(255,255,255,0.5);margin-bottom:16px;">วิเคราะห์จากข้อมูลของคุณ เรียงตามความเร่งด่วน</div>
+      ${r.insRecs.map((rec, idx) => `
+        <div style="background:rgba(255,255,255,0.05);border:1px solid rgba(255,255,255,0.1);border-left:4px solid ${priorityBorder[rec.priority]};border-radius:12px;padding:16px;margin-bottom:12px;">
+          <div style="display:flex;align-items:center;gap:10px;margin-bottom:8px;">
+            <span style="font-size:24px;">${rec.icon}</span>
+            <div style="flex:1;">
+              <div style="font-size:14px;font-weight:700;color:white;">${rec.name}</div>
+              <div style="font-size:12px;color:${rec.color};margin-top:2px;">${rec.tagline}</div>
+            </div>
+            <span style="font-size:11px;background:${priorityBorder[rec.priority]}22;color:${priorityBorder[rec.priority]};padding:4px 10px;border-radius:20px;white-space:nowrap;border:1px solid ${priorityBorder[rec.priority]}44;">${priorityLabel[rec.priority]}</span>
+          </div>
+          <div style="font-size:13px;color:rgba(255,255,255,0.75);line-height:1.6;margin-bottom:10px;padding-left:34px;">${rec.reason}</div>
+          <div style="display:flex;gap:6px;flex-wrap:wrap;padding-left:34px;">
+            ${rec.tags.map(t => `<span style="font-size:11px;background:rgba(255,255,255,0.08);color:rgba(255,255,255,0.5);padding:3px 8px;border-radius:10px;">${t}</span>`).join('')}
+          </div>
+        </div>
+      `).join('')}
+    </div>
+
+    <div class="result-cards">
+      <div class="result-card">
+        <div class="result-card-title green">✅ จุดแข็ง</div>
+        ${strengthItems.length ? strengthItems.map(i => `<div class="result-item"><span class="result-item-icon">✓</span>${i}</div>`).join('') : '<div class="result-item" style="color:rgba(255,255,255,0.4)">ยังไม่พบจุดแข็งที่ชัดเจน</div>'}
+      </div>
+      <div class="result-card">
+        <div class="result-card-title red">❌ จุดที่ต้องปรับปรุง</div>
+        ${weakItems.length ? weakItems.map(i => `<div class="result-item"><span class="result-item-icon">!</span>${i}</div>`).join('') : '<div class="result-item" style="color:#2ECC71">สถานะการเงินดีมาก ไม่พบจุดอ่อน</div>'}
+      </div>
+    </div>
+
+    <button class="btn-cta" style="width:100%;padding:16px;border-radius:14px;font-size:16px;margin-top:8px;" onclick="showPage('page-lead')">
+      📋 นัดปรึกษาผู้เชี่ยวชาญฟรี →
+    </button>
+  `;
+
+  document.getElementById('result-body').innerHTML = html;
+}
+
+// ============================================================
+// GOOGLE SHEETS INTEGRATION
+// ============================================================
+
+// *** วาง URL ของ Apps Script ที่นี่หลัง Deploy ***
+const SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbz-WnP6k4Eei2JO6VU463a6vFMrYwOew5O8wN8Q_KsbU9AB4d7oE8aJdFPv1uBeU1QL_w/exec';
+
+async function sendToGoogleSheets(leadData) {
+  if (!SCRIPT_URL || SCRIPT_URL === 'https://script.google.com/macros/s/AKfycbz-WnP6k4Eei2JO6VU463a6vFMrYwOew5O8wN8Q_KsbU9AB4d7oE8aJdFPv1uBeU1QL_w/exec') return; // ยังไม่ได้ตั้งค่า
+  try {
+    await fetch(SCRIPT_URL, {
+      method: 'POST',
+      mode: 'no-cors', // Apps Script ต้องใช้ no-cors
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(leadData)
+    });
+  } catch (err) {
+    console.warn('Sheets sync failed (offline?):', err.message);
+    // ไม่ block user — เก็บ localStorage ไว้ก่อน
+  }
+}
+
+// ============================================================
+// LEAD & THANK YOU
+// ============================================================
+async function submitLead() {
+  const name = document.getElementById('lead-name').value.trim();
+  const phone = document.getElementById('lead-phone').value.trim();
+  const line = document.getElementById('lead-line').value.trim();
+
+  if (!name || !phone) {
+    alert('กรุณากรอกชื่อและเบอร์โทรศัพท์');
+    return;
+  }
+
+  // Disable button + loading
+  const btn = document.querySelector('.btn-lead');
+  btn.disabled = true;
+  btn.textContent = '⏳ กำลังบันทึก...';
+
+  const lead = {
+    id: Date.now(),
+    name, phone, line,
+    answers: { ...answers },
+    results: { ...results },
+    date: new Date().toLocaleDateString('th-TH', { year: 'numeric', month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit' })
+  };
+
+  // 1. บันทึก localStorage ก่อนเสมอ (ไม่ต้องรอ network)
+  allLeads.unshift(lead);
+  localStorage.setItem('ffc_leads', JSON.stringify(allLeads));
+
+  // 2. ส่งไป Google Sheets แบบ async (ไม่ block user)
+  sendToGoogleSheets(lead); // fire-and-forget
+
+  btn.disabled = false;
+  showThankyou(true, name);
+}
+
+function showThankyou(hasName, name = '') {
+  if (hasName) {
+    document.getElementById('ty-message').textContent = `คุณ${name} ที่ปรึกษาทางการเงินจะติดต่อกลับภายใน 24 ชั่วโมง พร้อมรายงานวิเคราะห์ฉบับเต็ม`;
+  } else {
+    document.getElementById('ty-message').textContent = 'คุณสามารถดาวน์โหลดรายงานสรุปผลการวิเคราะห์ได้ด้านล่าง';
+  }
+  showPage('page-thankyou');
+}
+
+function restartApp() {
+  answers = {};
+  results = {};
+  showPage('page-landing');
+}
+
+async function handleDownloadPDF(btn) {
+  btn.disabled = true;
+  btn.textContent = '⏳ กำลังสร้างรายงาน...';
+  try {
+    await downloadPDF();
+  } catch(e) {
+    alert('เกิดข้อผิดพลาด กรุณาลองใหม่');
+    console.error(e);
+  }
+  btn.disabled = false;
+  btn.textContent = '⬇️ ดาวน์โหลดรายงาน PDF';
+}
+
+// ============================================================
+// PDF DOWNLOAD — html2canvas approach (full Thai support)
+// ============================================================
+async function downloadPDF() {
+  const r = results;
+  const inc = parseFloat(answers.income) || 0;
+  const debtMap = {'none':'ไม่มี','lt500k':'น้อยกว่า 500,000 บาท','500k2m':'500,000–2,000,000 บาท','gt2m':'มากกว่า 2,000,000 บาท'};
+  const smokeMap = {'none':'ไม่สูบบุหรี่','occasional':'สูบบางโอกาส','regular':'สูบประจำ'};
+  const exMap = {'never':'ไม่ออกกำลังกาย','1to2':'1–2 ครั้ง/สัปดาห์','3to5':'3–5 ครั้ง/สัปดาห์','athlete':'ระดับนักกีฬา'};
+  const occMap = {'employee':'พนักงานบริษัท','government':'ข้าราชการ','business':'ธุรกิจส่วนตัว','freelance':'ฟรีแลนซ์'};
+  const insMap = {'none':'ไม่มี','life':'ประกันชีวิต','health':'ประกันสุขภาพ','both':'มีทั้งคู่'};
+  const famMap = {'none':'ไม่มี','cancer':'มะเร็ง','heart':'โรคหัวใจ','both':'มะเร็งและโรคหัวใจ'};
+  const scoreColor = r.score >= 80 ? '#27AE60' : r.score >= 60 ? '#3498DB' : r.score >= 40 ? '#F39C12' : '#E74C3C';
+
+  // Build HTML report template
+  const html = `
+  <div id="pdf-report" style="
+    width:794px; background:#fff; font-family:'Sarabun',sans-serif;
+    color:#0B1F3A; padding:0; margin:0;
+  ">
+    <!-- Header -->
+    <div style="background:linear-gradient(135deg,#0B1F3A,#1A5276);padding:40px 48px;color:white;">
+      <div style="font-size:26px;font-weight:700;letter-spacing:1px;margin-bottom:6px;">รายงานวิเคราะห์สุขภาพการเงิน</div>
+      <div style="font-size:15px;color:#85C1E9;margin-bottom:4px;">Financial Health Report</div>
+      <div style="font-size:13px;color:rgba(255,255,255,0.5);">วันที่ออกรายงาน: ${new Date().toLocaleDateString('th-TH',{year:'numeric',month:'long',day:'numeric'})}</div>
+    </div>
+
+    <!-- Score + BMI row -->
+    <div style="display:flex;gap:0;border-bottom:3px solid #EBF5FB;">
+      <div style="flex:1;background:#1A5276;padding:32px 24px;text-align:center;color:white;">
+        <div style="font-size:13px;color:#AED6F1;margin-bottom:10px;">คะแนนสุขภาพการเงิน</div>
+        <div style="font-size:52px;font-weight:700;line-height:1;color:${scoreColor};">${r.score}</div>
+        <div style="font-size:18px;color:rgba(255,255,255,0.5);margin-bottom:8px;">/100</div>
+        <div style="display:inline-block;background:${scoreColor};color:white;padding:6px 18px;border-radius:20px;font-size:15px;font-weight:600;">${r.scoreStatus}</div>
+      </div>
+      <div style="flex:1;background:#2980B9;padding:32px 24px;text-align:center;color:white;">
+        <div style="font-size:13px;color:#AED6F1;margin-bottom:10px;">ดัชนีมวลกาย (BMI)</div>
+        <div style="font-size:52px;font-weight:700;line-height:1;color:${r.bmiColor};">${r.bmi}</div>
+        <div style="font-size:14px;color:rgba(255,255,255,0.5);margin-bottom:8px;">กก./ม.²</div>
+        <div style="display:inline-block;background:${r.bmiColor};color:white;padding:6px 18px;border-radius:20px;font-size:15px;font-weight:600;">${r.bmiStatus}</div>
+      </div>
+    </div>
+
+    <div style="padding:36px 48px;">
+
+    <!-- Protection Gap -->
+    <div style="background:#FEF9E7;border-left:5px solid #F39C12;border-radius:8px;padding:20px 24px;margin-bottom:28px;">
+      <div style="font-size:13px;font-weight:700;color:#784212;letter-spacing:1px;text-transform:uppercase;margin-bottom:12px;">⚠️ ช่องว่างความคุ้มครอง (Protection Gap)</div>
+      <div style="display:flex;gap:16px;flex-wrap:wrap;">
+        <div style="flex:1;min-width:160px;">
+          <div style="font-size:12px;color:#888;margin-bottom:4px;">ทุนประกันที่แนะนำ</div>
+          <div style="font-size:20px;font-weight:700;color:#1A5276;">${fmtNum(r.recommendedCoverage)} บาท</div>
+          <div style="font-size:11px;color:#aaa;">รายได้ต่อปี × 10</div>
+        </div>
+        <div style="flex:1;min-width:160px;">
+          <div style="font-size:12px;color:#888;margin-bottom:4px;">ทุนประกันปัจจุบัน</div>
+          <div style="font-size:20px;font-weight:700;color:${r.coverage < r.recommendedCoverage ? '#E74C3C' : '#27AE60'};">${fmtNum(r.coverage)} บาท</div>
+        </div>
+        <div style="flex:1;min-width:160px;">
+          <div style="font-size:12px;color:#888;margin-bottom:4px;">ยังขาดอีก</div>
+          <div style="font-size:20px;font-weight:700;color:#E74C3C;">${fmtNum(r.protectionGap)} บาท</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Financial Data -->
+    <div style="margin-bottom:28px;">
+      <div style="font-size:15px;font-weight:700;color:#0B1F3A;border-bottom:2px solid #EBF5FB;padding-bottom:10px;margin-bottom:16px;">💰 ข้อมูลการเงิน</div>
+      ${[
+        ['รายได้รวมต่อเดือน', fmtNum(inc) + ' บาท'],
+        ['ค่าใช้จ่ายต่อเดือน', fmtNum(answers.expenses) + ' บาท'],
+        ['เงินออมรวม', fmtNum(answers.savings) + ' บาท'],
+        ['กองทุนฉุกเฉินที่แนะนำ', fmtNum(r.recommendedEmergency) + ' บาท'],
+        ['ภาระหนี้สิน', debtMap[answers.debt] || '-'],
+      ].map((row,i) => `
+        <div style="display:flex;justify-content:space-between;padding:10px 14px;background:${i%2===0?'#F4F8FC':'white'};border-radius:6px;margin-bottom:4px;">
+          <span style="font-size:14px;color:#555;">${row[0]}</span>
+          <span style="font-size:14px;font-weight:700;color:#0B1F3A;">${row[1]}</span>
+        </div>
+      `).join('')}
+    </div>
+
+    <!-- Personal Info -->
+    <div style="margin-bottom:28px;">
+      <div style="font-size:15px;font-weight:700;color:#0B1F3A;border-bottom:2px solid #EBF5FB;padding-bottom:10px;margin-bottom:16px;">👤 ข้อมูลส่วนตัวและสุขภาพ</div>
+      ${[
+        ['อายุ', (answers.age || '-') + ' ปี'],
+        ['เพศ', answers.gender === 'male' ? 'ชาย' : 'หญิง'],
+        ['อาชีพ', occMap[answers.occupation] || '-'],
+        ['ส่วนสูง / น้ำหนัก', (answers.height||'-') + ' ซม. / ' + (answers.weight||'-') + ' กก.'],
+        ['สถานะการสูบบุหรี่', smokeMap[answers.smoking] || '-'],
+        ['ความถี่ออกกำลังกาย', exMap[answers.exercise] || '-'],
+        ['ประวัติโรคในครอบครัว', famMap[answers.family_history] || '-'],
+        ['ประกันที่มีอยู่', insMap[answers.has_insurance] || '-'],
+      ].map((row,i) => `
+        <div style="display:flex;justify-content:space-between;padding:10px 14px;background:${i%2===0?'#F4F8FC':'white'};border-radius:6px;margin-bottom:4px;">
+          <span style="font-size:14px;color:#555;">${row[0]}</span>
+          <span style="font-size:14px;font-weight:700;color:#0B1F3A;">${row[1]}</span>
+        </div>
+      `).join('')}
+    </div>
+
+    <!-- Recommendations -->
+    <div style="background:#EBF5FB;border-radius:10px;padding:20px 24px;margin-bottom:8px;">
+      <div style="font-size:15px;font-weight:700;color:#1A5276;margin-bottom:14px;">💡 คำแนะนำสำหรับคุณ</div>
+      ${r.protectionGap > 0 ? `<div style="font-size:14px;color:#333;margin-bottom:8px;padding-left:4px;">• ควรเพิ่มทุนประกันชีวิตอีก <strong>${fmtNum(r.protectionGap)} บาท</strong> เพื่อให้เพียงพอ</div>` : ''}
+      ${answers.has_insurance === 'none' ? `<div style="font-size:14px;color:#333;margin-bottom:8px;padding-left:4px;">• ยังไม่มีประกันใดๆ ควรเริ่มต้นด้วยประกันชีวิตและสุขภาพ</div>` : ''}
+      ${answers.has_insurance !== 'both' ? `<div style="font-size:14px;color:#333;margin-bottom:8px;padding-left:4px;">• ควรพิจารณาประกันสุขภาพ ประกันโรคร้ายแรง (CI) และประกันอุบัติเหตุ (PA)</div>` : ''}
+      ${answers.emergency !== 'gt6' ? `<div style="font-size:14px;color:#333;margin-bottom:8px;padding-left:4px;">• สร้างกองทุนฉุกเฉินให้ถึง ${fmtNum(r.recommendedEmergency)} บาท (ค่าใช้จ่าย 6 เดือน)</div>` : ''}
+      ${answers.smoking !== 'none' ? `<div style="font-size:14px;color:#333;margin-bottom:8px;padding-left:4px;">• การเลิกสูบบุหรี่จะลดความเสี่ยงโรคร้ายแรงและค่าเบี้ยประกัน</div>` : ''}
+      <div style="font-size:14px;color:#333;padding-left:4px;">• ติดต่อที่ปรึกษาทางการเงินเพื่อรับแผนคุ้มครองที่เหมาะกับคุณ</div>
+    </div>
+
+    </div>
+
+    <!-- Footer -->
+    <div style="background:#0B1F3A;padding:24px 48px;color:rgba(255,255,255,0.5);font-size:12px;text-align:center;line-height:1.8;">
+      <div style="color:#85C1E9;font-weight:600;margin-bottom:4px;">Financial Health Check</div>
+      รายงานนี้จัดทำเพื่อการวิเคราะห์เบื้องต้นเท่านั้น<br>
+      กรุณาปรึกษาที่ปรึกษาทางการเงินที่ได้รับใบอนุญาตเพื่อรับคำแนะนำที่เหมาะสม
+    </div>
+  </div>`;
+
+  // Inject hidden container
+  const container = document.createElement('div');
+  container.style.cssText = 'position:fixed;left:-9999px;top:0;z-index:-1;';
+  container.innerHTML = html;
+  document.body.appendChild(container);
+
+  // Wait for fonts
+  await document.fonts.ready;
+
+  // Capture
+  const canvas = await html2canvas(container.querySelector('#pdf-report'), {
+    scale: 2,
+    useCORS: true,
+    backgroundColor: '#ffffff',
+    logging: false,
+  });
+
+  document.body.removeChild(container);
+
+  const { jsPDF } = window.jspdf;
+  const imgData = canvas.toDataURL('image/png');
+  const pdfW = 210;
+  const pdfH = (canvas.height / canvas.width) * pdfW;
+
+  const doc = new jsPDF({ orientation: pdfH > 297 ? 'portrait' : 'portrait', unit: 'mm', format: 'a4' });
+
+  // If content taller than A4, split across pages
+  const pageH = 297;
+  let yPos = 0;
+  const imgH = (canvas.height / canvas.width) * pdfW;
+
+  if (imgH <= pageH) {
+    doc.addImage(imgData, 'PNG', 0, 0, pdfW, imgH);
+  } else {
+    let remaining = imgH;
+    let srcY = 0;
+    let first = true;
+    while (remaining > 0) {
+      const sliceH = Math.min(pageH, remaining);
+      const sliceRatio = sliceH / imgH;
+      const srcSliceH = canvas.height * sliceRatio;
+      const sliceCanvas = document.createElement('canvas');
+      sliceCanvas.width = canvas.width;
+      sliceCanvas.height = srcSliceH;
+      const ctx = sliceCanvas.getContext('2d');
+      ctx.drawImage(canvas, 0, srcY, canvas.width, srcSliceH, 0, 0, canvas.width, srcSliceH);
+      if (!first) doc.addPage();
+      doc.addImage(sliceCanvas.toDataURL('image/png'), 'PNG', 0, 0, pdfW, sliceH);
+      srcY += srcSliceH;
+      remaining -= sliceH;
+      first = false;
+    }
+  }
+
+  doc.save('financial-health-report.pdf');
+}
+
+// ============================================================
+// ADMIN
+// ============================================================
+function showAdmin() {
+  renderAdmin();
+  showPage('page-admin');
+}
+
+function renderAdmin() {
+  allLeads = JSON.parse(localStorage.getItem('ffc_leads') || '[]');
+
+  const total = allLeads.length;
+  const avgScore = total ? Math.round(allLeads.reduce((s, l) => s + (l.results?.score || 0), 0) / total) : 0;
+  const highRisk = allLeads.filter(l => (l.results?.score || 0) < 40).length;
+
+  document.getElementById('admin-stats').innerHTML = `
+    <div class="admin-stat"><div class="admin-stat-num">${total}</div><div class="admin-stat-label">Leads ทั้งหมด</div></div>
+    <div class="admin-stat" style="border-color:#27AE60"><div class="admin-stat-num">${avgScore}</div><div class="admin-stat-label">คะแนนเฉลี่ย</div></div>
+    <div class="admin-stat" style="border-color:#E74C3C"><div class="admin-stat-num">${highRisk}</div><div class="admin-stat-label">ความเสี่ยงสูง</div></div>
+  `;
+
+  renderLeadsTable(allLeads);
+}
+
+function renderLeadsTable(leads) {
+  const tbody = document.getElementById('admin-tbody');
+  if (leads.length === 0) {
+    tbody.innerHTML = `<tr><td colspan="10"><div class="empty-state"><div class="empty-icon">📋</div><div class="empty-msg">ยังไม่มีข้อมูล leads</div></div></td></tr>`;
+    return;
+  }
+
+  tbody.innerHTML = leads.map((lead, idx) => {
+    const score = lead.results?.score || 0;
+    const bmi = lead.results?.bmi || '-';
+    const income = parseFloat(lead.answers?.income || 0);
+    const scoreCls = score >= 80 ? 'score-excellent' : score >= 60 ? 'score-good' : score >= 40 ? 'score-fair' : 'score-poor';
+
+    return `<tr>
+      <td>${idx + 1}</td>
+      <td><strong>${lead.name || '-'}</strong></td>
+      <td>${lead.phone || '-'}</td>
+      <td>${lead.line || '-'}</td>
+      <td>${lead.answers?.age || '-'}</td>
+      <td>${fmtNum(income)}</td>
+      <td><span class="score-badge ${scoreCls}">${score}/100</span></td>
+      <td>${bmi}</td>
+      <td style="white-space:nowrap;font-size:12px;color:#999">${lead.date || '-'}</td>
+      <td>
+        <div class="admin-actions">
+          <button class="btn-view-detail" onclick="showLeadModal(${idx})">ดู</button>
+          <button class="btn-view-detail" style="background:#E74C3C" onclick="deleteLead(${idx})">ลบ</button>
+        </div>
+      </td>
+    </tr>`;
+  }).join('');
+}
+
+function filterLeads() {
+  const q = document.getElementById('admin-search').value.toLowerCase();
+  const filtered = allLeads.filter(l =>
+    (l.name || '').toLowerCase().includes(q) ||
+    (l.phone || '').includes(q) ||
+    (l.line || '').toLowerCase().includes(q)
+  );
+  renderLeadsTable(filtered);
+}
+
+function showLeadModal(idx) {
+  const lead = allLeads[idx];
+  const r = lead.results || {};
+  const a = lead.answers || {};
+
+  const content = document.getElementById('modal-content');
+  content.innerHTML = `
+    <h3>👤 ${lead.name}</h3>
+    <div class="modal-row"><span class="modal-key">โทร</span><span class="modal-val">${lead.phone}</span></div>
+    <div class="modal-row"><span class="modal-key">LINE</span><span class="modal-val">${lead.line || '-'}</span></div>
+    <div class="modal-row"><span class="modal-key">วันที่</span><span class="modal-val">${lead.date}</span></div>
+    <div class="modal-row"><span class="modal-key">คะแนน</span><span class="modal-val">${r.score}/100 (${r.scoreStatus})</span></div>
+    <div class="modal-row"><span class="modal-key">BMI</span><span class="modal-val">${r.bmi} (${r.bmiStatus})</span></div>
+    <div class="modal-row"><span class="modal-key">อายุ</span><span class="modal-val">${a.age} ปี</span></div>
+    <div class="modal-row"><span class="modal-key">รายได้/เดือน</span><span class="modal-val">${fmtNum(a.income)} บาท</span></div>
+    <div class="modal-row"><span class="modal-key">ค่าใช้จ่าย/เดือน</span><span class="modal-val">${fmtNum(a.expenses)} บาท</span></div>
+    <div class="modal-row"><span class="modal-key">เงินออม</span><span class="modal-val">${fmtNum(a.savings)} บาท</span></div>
+    <div class="modal-row"><span class="modal-key">ทุนประกันที่แนะนำ</span><span class="modal-val">${fmtNum(r.recommendedCoverage)} บาท</span></div>
+    <div class="modal-row"><span class="modal-key">ทุนประกันปัจจุบัน</span><span class="modal-val">${fmtNum(r.coverage)} บาท</span></div>
+    <div class="modal-row"><span class="modal-key">ช่องว่างความคุ้มครอง</span><span class="modal-val" style="color:#E74C3C">${fmtNum(r.protectionGap)} บาท</span></div>
+    <div class="modal-row"><span class="modal-key">หนี้สิน</span><span class="modal-val">{{ ${{'none':'ไม่มี','lt500k':'< 500K','500k2m':'500K–2M','gt2m':'> 2M'}}[a.debt] || a.debt }}</span></div>
+    <div class="modal-row"><span class="modal-key">การสูบบุหรี่</span><span class="modal-val">${{'none':'ไม่สูบ','occasional':'บางโอกาส','regular':'ประจำ'}[a.smoking] || a.smoking}</span></div>
+    <button class="modal-close" onclick="closeModal()">ปิด</button>
+  `;
+
+  // Fix template literal issues
+  content.querySelectorAll('.modal-val').forEach(el => {
+    el.textContent = el.textContent
+      .replace('{{ {none:\'ไม่มี\',lt500k:\'< 500K\',\'500k2m\':\'500K–2M\',gt2m:\'> 2M\'}[a.debt] || a.debt }}', 
+        {'none':'ไม่มี','lt500k':'< 500K','500k2m':'500K–2M','gt2m':'> 2M'}[a.debt] || a.debt || '-');
+  });
+
+  document.getElementById('modal-overlay').classList.add('open');
+}
+
+function closeModal(e) {
+  if (!e || e.target.id === 'modal-overlay') {
+    document.getElementById('modal-overlay').classList.remove('open');
+  }
+}
+
+function deleteLead(idx) {
+  if (!confirm('ลบข้อมูลนี้หรือไม่?')) return;
+  allLeads.splice(idx, 1);
+  localStorage.setItem('ffc_leads', JSON.stringify(allLeads));
+  renderAdmin();
+}
+
+// Better modal detail render
+function showLeadModal(idx) {
+  const lead = allLeads[idx];
+  const r = lead.results || {};
+  const a = lead.answers || {};
+  const debtMap = {'none':'ไม่มี','lt500k':'< 500,000 บาท','500k2m':'500K–2M บาท','gt2m':'> 2M บาท'};
+  const smokeMap = {'none':'ไม่สูบ','occasional':'บางโอกาส','regular':'ประจำ'};
+  const insMap = {'none':'ไม่มี','life':'ประกันชีวิต','health':'ประกันสุขภาพ','both':'มีทั้งคู่'};
+
+  const rows = [
+    ['โทรศัพท์', lead.phone || '-'],
+    ['LINE', lead.line || '-'],
+    ['วันที่ส่งข้อมูล', lead.date || '-'],
+    ['──────────', '──────────'],
+    ['คะแนนสุขภาพการเงิน', `${r.score}/100 (${r.scoreStatus})`],
+    ['BMI', `${r.bmi} — ${r.bmiStatus}`],
+    ['──────────', '──────────'],
+    ['อายุ', `${a.age} ปี`],
+    ['เพศ', a.gender === 'male' ? 'ชาย' : 'หญิง'],
+    ['รายได้/เดือน', fmtNum(a.income) + ' บาท'],
+    ['ค่าใช้จ่าย/เดือน', fmtNum(a.expenses) + ' บาท'],
+    ['เงินออม', fmtNum(a.savings) + ' บาท'],
+    ['หนี้สิน', debtMap[a.debt] || '-'],
+    ['──────────', '──────────'],
+    ['ทุนประกันที่แนะนำ', fmtNum(r.recommendedCoverage) + ' บาท'],
+    ['ทุนประกันปัจจุบัน', fmtNum(r.coverage) + ' บาท'],
+    ['ช่องว่างความคุ้มครอง', fmtNum(r.protectionGap) + ' บาท'],
+    ['ประกันปัจจุบัน', insMap[a.has_insurance] || '-'],
+    ['──────────', '──────────'],
+    ['การสูบบุหรี่', smokeMap[a.smoking] || '-'],
+    ['ประวัติโรคในครอบครัว', {'none':'ไม่มี','cancer':'มะเร็ง','heart':'โรคหัวใจ','both':'ทั้งคู่'}[a.family_history] || '-'],
+  ];
+
+  const content = document.getElementById('modal-content');
+  content.innerHTML = `
+    <h3>👤 ${lead.name}</h3>
+    ${rows.map(([k, v]) => k.startsWith('──') ? `<div style="border-top:2px solid #ECF0F1;margin:8px 0"></div>` :
+      `<div class="modal-row">
+        <span class="modal-key">${k}</span>
+        <span class="modal-val" style="${k.includes('ช่องว่าง') ? 'color:#E74C3C' : ''}">${v}</span>
+      </div>`
+    ).join('')}
+    <button class="modal-close" onclick="closeModal()">ปิด</button>
+  `;
+
+  document.getElementById('modal-overlay').classList.add('open');
+}
+
+// Initialize
+renderStep();
+</script>
+</body>
+</html>
